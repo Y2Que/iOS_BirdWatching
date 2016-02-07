@@ -1,63 +1,43 @@
-# Xcode
-#
-# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+//
+//  CodeDataWrapper.swift
+//
+//  Created by Jaerock Kwon on 2/4/16.
+//  Copyright © 2016 Jaerock Kwon. All rights reserved.
+//
 
-## Build generated
-build/
-DerivedData
+import UIKit
+import CoreData
 
-## Various settings
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-xcuserdata
-
-## Other
-*.xccheckout
-*.moved-aside
-*.xcuserstate
-*.xcscmblueprint
-
-## Obj-C/Swift specific
-*.hmap
-*.ipa
-
-## Playgrounds
-timeline.xctimeline
-playground.xcworkspace
-
-# Swift Package Manager
-#
-# Add this line if you want to avoid checking in source code from Swift Package Manager dependencies.
-# Packages/
-.build/
-
-# CocoaPods
-#
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
-# Pods/
-
-# Carthage
-#
-# Add this line if you want to avoid checking in source code from Carthage dependencies.
-# Carthage/Checkouts
-
-Carthage/Build
-
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the 
-# screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://github.com/fastlane/fastlane/blob/master/docs/Gitignore.md
-
-fastlane/report.xml
-fastlane/screenshots
+class CoreDataWrapper: NSObject {
+    var appDelegate: AppDelegate
+    var managedObjectContext: NSManagedObjectContext
+    var entity: NSEntityDescription
+    var entityName: String
+    
+    init(entityName: String) {
+        self.appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        self.managedObjectContext = appDelegate.managedObjectContext
+        self.entity = NSEntityDescription.entityForName(entityName, inManagedObjectContext: managedObjectContext)!
+        self.entityName = entityName
+    }
+    
+    func save() {
+        do {
+            try managedObjectContext.save()
+        } catch let error as NSError  {
+            print("Could not save \(error), \(error.userInfo)")
+        }
+    }
+    
+    func fetch() -> AnyObject? {
+        let fetchRequest = NSFetchRequest(entityName: entityName)
+        
+        do {
+            let results = try managedObjectContext.executeFetchRequest(fetchRequest)
+            return results
+        } catch let error as NSError  {
+            print("Could not fetch \(error), \(error.userInfo)")
+        }
+        return nil
+    }
+}
